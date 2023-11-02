@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { db } from "../firebase/firebase";
-import { addDoc, collection } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { db } from '../firebase/firebase';
+
+import { addDoc, collection, doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const Appform = (props) => {
   /////// Guardar / Actualizar ////////
   const camposRegistro = {nombre:"", edad:"", genero:""}
   const [objeto, setObjeto] = useState(camposRegistro);
   //
-  const manejarEnvio = (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
 
     try {
@@ -15,14 +16,39 @@ const Appform = (props) => {
         if(validarForm()){
           addDoc(collection(db, 'persona'),objeto);
           console.log("se guardo con exito en bd")
-          }
+          
         }else{
-          console.log("actualizando en bd");
+          console.log("no se guardo");
         }
+      
+      }else{
+        await updateDoc(doc(collection(db, "persona",props.idActual),objeto));
+        console.log("se actualixo ...");
+        props.setidAcual('');
+      }
         setObjeto(camposRegistro);
       
     } catch (error){
-      console.error();
+      console.error("Error en crear o update",error);
+    }
+  }
+
+  useEffect(() =>{
+    if(props.idActual === ""){
+      setObjeto({...camposRegistro});   
+    }else{
+      obtenerDatosPorId(props.idActual);
+    }
+  }, [props.idActual]);
+
+  const obtenerDatosPorId = async (xId)=>{
+    const objPorId = doc(db, 'persona', xId);
+    const docPorId =await getDoc(objPorId);
+    if (docPorId.exists()) {
+      setObjeto(docPorId.data());
+
+    }else{
+      console.log("No hay doc ...");
     }
   }
 

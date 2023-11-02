@@ -4,7 +4,7 @@ import './App.css';
 //import P4variable from './components/P4variable';
 import AppForm from './components/AppForm';
 import { useEffect, useState } from 'react';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, deleteDoc, onSnapshot, query ,doc } from 'firebase/firestore';
 import { db } from './firebase/firebase';
 
 function App() {
@@ -36,11 +36,16 @@ useEffect( () => {
   ////////Delete - Eliminar - fnDelete /////
 
   const [idActual, setIdActual] = useState("");
-  const fnDelete = (xId) => {
+
+  const fnDelete = async (xId) => {
+    if(window.confirm("confime para eliminar")){
+      await deleteDoc(doc(db, 'persona', xId));
+      alert("Se elimino ....  "+ xId);
+    }
 
   }
   return (
-    <div style={{background:"yellow", width:"350px", padding:"10px", textAlign:"center"}}>
+    <div style={{background:"black", width:"350px", padding:"10px", textAlign:"center"}}>
       
       <AppForm {...{idActual, setIdActual, fnRead}}/>
       {
@@ -55,9 +60,7 @@ useEffect( () => {
       }
       <i class="large material-icons">insert_chart</i>
 
-      <p>1. Juan Manuel   23 Masculino    ---- x - A</p>
-      <p>2. Rosa Maria    25 Femenino     ---- x - A</p>
-      <p>3. Jacinto Mario 22 Masculino    ---- x - A</p>
+
     </div>
   );
 }
